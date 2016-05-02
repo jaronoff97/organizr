@@ -1,5 +1,6 @@
 from FileNotSetError import FileNotSetError
 import DictionaryHelper as dictionary
+from docx import Document
 
 
 class KeyWordFinder(object):
@@ -23,6 +24,8 @@ class KeyWordFinder(object):
 
     def find_keywords(self):
         keywords = {}
+        if ".doc" in self.filename:
+            return (self.keywords_from_word())
         with open(self.filename) as dataf:
             for line in dataf:
                 for word in line:
@@ -31,6 +34,13 @@ class KeyWordFinder(object):
                     else:
                         keywords[word] = keywords.get(word, 0) + 1
         return keywords
+
+    def keywords_from_word(self):
+        document = Document(self.filename)
+        print(document)
+        for paragraph in document.paragraphs:
+            print(paragraph.text)
+        return document.core_properties.keywords
 
 if __name__ == '__main__':
     temp_key = KeyWordFinder(
