@@ -15,7 +15,7 @@ class Organize(object):
 
     def __init__(self, folder,
                  organization_method=TypeOfOrg.Month,
-                 show_all_keys=False):
+                 show_all_keys=True):
         super(Organize, self).__init__()
         if not os.path.exists(Organize.endDir):
             os.makedirs(Organize.endDir)
@@ -86,8 +86,8 @@ class Organize(object):
         removed = False
         if os.path.isdir(filename):
             if len([name for name in os.listdir(filename) if (os.path.isfile(
-                    os.path.join(filename, name)) or os.path.isdir(
-                    os.path.join(filename, name))) and
+                    os.path.join(filename, name)) or
+                    os.path.isdir(os.path.join(filename, name))) and
                     not name.startswith('.')]) == 0:
                 shutil.rmtree(filename)
                 print("REMOVED {0}".format(filename))
@@ -100,6 +100,8 @@ class Organize(object):
         if os.path.isdir(folder):
             for file in os.listdir(folder):
                 key = os.path.splitext(file)[1]
+                if key is '':
+                    continue
                 if (os.path.isdir(folder + '/' + file) and
                         not os.path.isfile(folder + '/' + file)):
                     internal_files = self.countContents(folder + '/' + file)
