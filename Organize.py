@@ -6,6 +6,7 @@ import shutil
 from TypeOfOrg import TypeOfOrg
 from Accepted_Files import accepted_files
 import DictionaryHelper as dictionary
+from FileNotSetError import FileNotSetError
 
 
 class Organize(object):
@@ -25,6 +26,8 @@ class Organize(object):
         self.show_all_keys = show_all_keys
 
     def organize(self):
+        if self.folder is None:
+            raise FileNotSetError("FOLDER NOT SET!")
         for filename in os.listdir(self.folder):
             if not filename.startswith('.'):
                 if self.organization_method is not TypeOfOrg.Filename:
