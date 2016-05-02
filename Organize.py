@@ -6,6 +6,7 @@ import operator
 import shutil
 from TypeOfOrg import TypeOfOrg
 from Accepted_Files import accepted_files
+import DictionaryHelper as dictionary
 
 
 class Organize(object):
@@ -37,7 +38,7 @@ class Organize(object):
         modified = self.findModifiedTime(self.folder + filename)
         if not os.path.exists(Organize.endDir + modified):
             os.makedirs(Organize.endDir + modified)
-        shutil.move(
+        self.moveAndRemove(
             self.folder + filename, Organize.endDir +
             modified + '/' + filename)
 
@@ -50,47 +51,42 @@ class Organize(object):
                 os.makedirs(Organize.endDir + 'Other')
             for value in values:
                 try:
-                    if value in filename.lower():
-                        shutil.move(
+                    if value in filename.lower() and os.path.isfile(
+                            self.folder + filename):
+                        self.moveAndRemove(
                             self.folder + filename, Organize.endDir +
                             key + '/' + filename)
                         moved = True
                 except Exception as e:
-                    # print(e)
-                    pass
+                    print("ERROR {0}".format(e))
         if not moved:
             contents = self.countContents(self.folder + filename)
-            # print(contents)
             common_key = []
             if not contents:
                 pass
             else:
-                max_val = max(contents.items(), key=operator.itemgetter(1))[0]
-                common_key = self.getKeyFromValue(accepted_files, max_val)
+                max_val = max(contents.items(), key=lambda x: int(x[1]))[0]
+                common_key = dictionary.getKeyFromValue(
+                    accepted_files, max_val)
             if common_key:
-                shutil.move(self.folder + filename, Organize.endDir +
-                            common_key + '/' + filename)
+                self.moveAndRemove(self.folder + filename, Organize.endDir +
+                                   common_key + '/' + filename)
             else:
-                shutil.move(self.folder + filename, Organize.endDir +
-                            'Other' + '/' + filename)
+                self.moveAndRemove(self.folder + filename, Organize.endDir +
+                                   'Other' + '/' + filename)
 
-    def value_exists(self, dictionary, key_search):
-        for key in dictionary:
-            if key == key_search:
-                return True
-        return False
-
-    def merge(self, x, y):
-        '''Given two dicts, merge them into a new dict as a shallow copy.'''
-        z = x.copy()
-        z.update(y)
-        return z
-
-    def getKeyFromValue(self, dictionary, search_value):
-        for key, values in dictionary.items():
-            for value in values:
-                if value == search_value:
-                    return key
+    def moveAndRemove(self, filename, destination):
+        removed = False
+        if os.path.isdir(filename):
+            if len([name for name in os.listdir(filename) if (os.path.isfile(
+                    os.path.join(filename, name)) or os.path.isdir(
+                    os.path.join(filename, name))) and
+                    not name.startswith('.')]) == 0:
+                shutil.rmtree(filename)
+                print("REMOVED {0}".format(filename))
+                removed = True
+        if not removed:
+            shutil.move(filename, destination)
 
     def countContents(self, folder):
         file_types = {}
@@ -98,10 +94,10 @@ class Organize(object):
             for file in os.listdir(folder):
                 key = os.path.splitext(file)[1]
                 if os.path.isdir(folder + '/' + file):
-                    file_types = self.merge(
+                    file_types = dictionary.merge(
                         file_types, self.countContents(folder + '/' + file))
                 else:
-                    if self.value_exists(file_types, key):
+                    if dictionary.value_exists(file_types, key):
                         file_types[key] = file_types.get(key, 0) + 1
                     else:
                         file_types[key] = 1
