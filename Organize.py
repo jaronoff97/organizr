@@ -39,8 +39,9 @@ class Organize(object):
 
     def findModifiedTime(self, filename):
         theTime = os.path.getmtime(filename)
+        org_method = TypeOfOrg.orgFromInt(self.organization_method)
         return datetime.datetime.fromtimestamp(theTime).strftime(
-            TypeOfOrg.modifiedTimeString(self.organization_method))
+            TypeOfOrg.modifiedTimeString(org_method))
 
     def moveFileByTime(self, filename):
         final_path = self.folder + filename

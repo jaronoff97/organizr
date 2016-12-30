@@ -5,8 +5,12 @@ from clean_all import clean
 
 def main():
     clean()
-    organizr = Organize("Desktop", organization_method=TypeOfOrg.Filename)
-    organizr.organize()
+    downloads_organizr = Organize(
+        "Downloads", organization_method=TypeOfOrg.Filename)
+    downloads_organizr.organize()
+    desktop_organizr = Organize(
+        "Desktop", organization_method=TypeOfOrg.Filename)
+    desktop_organizr.organize()
 
 if __name__ == '__main__':
     main()
